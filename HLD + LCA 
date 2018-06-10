@@ -1,0 +1,170 @@
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <string.h>
+#include <algorithm>
+#include <queue>
+#include <set>
+#include <map>
+#include <math.h>
+#include <iomanip>
+#include <unordered_map>
+using namespace std;
+
+typedef long long ll;
+typedef long double LD;
+typedef pair<int,int>ii;
+typedef pair<int,ii>vii;
+typedef pair<vii,ii>node;
+const int N=200005;
+int n,m,q,sz[200005],chain[N],cur=0,head[N],counter=1,idx[N],par[N][30],depth[N],MX;
+vector<int>id,adj[200005];
+void dfs(int node,int p){
+ sz[node]=1;
+ par[node][0]=p;
+ depth[node]=depth[p]+1;
+ for(int i=0;i<adj[node].size();i++){
+    if(adj[node][i]==p)continue;
+    dfs(adj[node][i],node);
+    sz[node]+=sz[adj[node][i]];
+ }
+}
+void hld(int node,int p=0){
+ if(chain[node]==0){
+    cur++;
+    head[cur]=node;
+ }
+    chain[node]=cur;
+    idx[node]=counter++;
+    int mx=0,temp=-1;
+    for(int i=0;i<adj[node].size();i++){
+        int to=adj[node][i];
+        if(to==p)continue;
+        if(sz[to]>mx){
+            mx=sz[to];
+            temp=to;
+        }
+    }
+    if(temp!=-1){
+        chain[temp]=cur;
+        hld(temp,node);
+    }
+    for(int i=0;i<adj[node].size();i++){
+        int to=adj[node][i];
+        if(to==p||to==temp)continue;
+        hld(to,node);
+    }
+}
+int tree[N*4];
+void update(int p,int s,int e,int pos,int val){
+ if(pos<s||e<pos)return;
+ if(s==e&&pos==s){
+   tree[p]=val;
+   return;
+ }
+ update(p*2,s,(s+e)/2,pos,val);
+ update(p*2+1,(s+e)/2+1,e,pos,val);
+ tree[p]=tree[p*2]+tree[p*2+1];
+}
+int lca(int u,int v){
+ if(depth[u]>depth[v])
+    swap(u,v);
+ int h=depth[v]-depth[u];
+ int lg=20;
+ while(h){
+    if(h-(1<<lg)>=0)
+        v=par[v][lg],h-=(1<<lg);
+    lg--;
+ }
+ if(u==v)
+    return u;
+    for (int i = 20; i >= 0; i--)
+          if (par[u][i] != -1 && par[u][i] != par[v][i])
+              u = par[u][i], v = par[v][i];
+ return par[u][0];
+}
+int query(int p,int s,int e,int from,int to){
+ if(to<s||e<from)
+    return 0;
+ if(from<=s&&e<=to){
+    return tree[p];
+ }
+ return query(p*2,s,(s+e)/2,from,to) + query(p*2+1,(s+e)/2+1,e,from,to);
+ }
+int go(int node,int goal){
+ int ret=0;
+ while(1){
+    int cur_chain=chain[node];
+    int from=idx[node],to=idx[head[cur_chain]];
+    if(chain[goal]==cur_chain){
+       to=idx[goal];
+       ret+=query(1,0,n,min(from,to),max(from,to));
+       break;
+    }
+    else{
+       ret+=query(1,0,n,min(from,to),max(from,to));
+    }
+    node=head[cur_chain];
+    node=par[node][0];
+ }
+ return ret;
+}
+int solve(int a,int b){
+  if(a==b)return 0;
+  int c=lca(a,b);
+  int sum=go(a,c);
+  sum+=go(b,c);
+  return sum-2*query(1,0,n,idx[c],idx[c]);
+}
+int main()
+{
+//  freopen("test.in","r",stdin);
+  int a,b;
+  memset(head,0,sizeof(head));
+  memset(par,-1,sizeof(par));
+  scanf("%d",&n);
+  for(int i=1;i<n;i++){
+    scanf("%d%d",&a,&b);
+    adj[a].push_back(b);
+    adj[b].push_back(a);
+  }
+  dfs(1,0);
+  hld(1);
+  for(int i=1;i<20;i++){
+    for(int node=1;node<=n;node++){
+        if(par[node][i-1]!=-1)
+            par[node][i]=par[par[node][i-1]][i-1];
+    }
+  }
+  cin>>q;
+  while(q--){
+        char c;
+        int a,b;
+        cin>>c>>a>>b;
+        if(c=='d'){
+            if(par[a][0]==b){
+                update(1,0,n,idx[a],1);
+            }
+            if(par[b][0]==a){
+                update(1,0,n,idx[b],1);
+            }
+        }
+        if(c=='c'){
+            if(par[a][0]==b){
+                update(1,0,n,idx[a],0);
+            }
+            if(par[b][0]==a)
+                update(1,0,n,idx[b],0);
+        }
+        if(c=='q'){
+                int sum=solve(a,b);
+                if(sum)printf("Impossible\n");
+                else{
+                    int x=lca(a,b);
+                    printf("%d\n",depth[a]+depth[b]-2*depth[x]);
+                }
+        }
+  }
+  return 0;
+}
+

@@ -1,0 +1,142 @@
+/*
+Till the roof comes off, till the lights go out
+Till my legs give out, canâ��t shut my mouth.
+Till the smoke clears out. Am I high? Perhaps
+I'ma rip this shit till my bones collapse.
+*/
+#include <stdio.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <deque>
+#include <set>
+#include <stack>
+#include <string.h>
+#include <map>
+#include <vector>
+#include <queue>
+#include <math.h>
+#include <stack>
+#include <complex>
+
+
+#define ll long long
+#define X real()
+#define Y imag()
+#define f first
+#define s second
+#define angle(a)                (atan2((a).imag(), (a).real()))
+#define vec(a,b)                ((b)-(a))
+#define same(p1,p2)             (dp(vec(p1,p2),vec(p1,p2)) < EPS)
+#define dp(a,b)                 ( (conj(a)*(b)).real() )	// a*b cos(T), if zero -> prep
+#define cp(a,b)                 ( (conj(a)*(b)).imag() )	// a*b sin(T), if zero -> parllel
+#define lngth(a)               (hypot((a).imag(), (a).real()))
+#define normalize(a)            (a)/length(a)
+
+using namespace std;
+
+const int N=305;
+typedef pair<int,int>ii;
+typedef pair<ii,int>event;
+typedef complex<double>point;
+const double EPS = 1e-9;
+const int INF=100000;
+
+const double PI = acos(-1);
+int gcd(int a, int b) { return b == 0 ? a : gcd(b, a % b); }
+
+vector<ii>v[301];
+int p[301],f,n,m,mat[301][301];
+void AddEdge(int a,int b,int c){
+   v[a].push_back(ii(b,c));
+   mat[a][b]=c;
+}
+void augment(int cur,int minEdge){
+  if(!cur){
+    f=minEdge;
+    return;
+  }
+ else if(p[cur]!=-1){
+  augment(p[cur],min(mat[p[cur]][cur],minEdge));
+  mat[p[cur]][cur]-=f;
+  mat[cur][p[cur]]+=f;
+ }
+}
+int edmondKarp(int t){
+  int mf=0;
+  while(1){
+     int s=0;
+     vector<int>dist(N,INF);
+     dist[s]=0;
+     queue<int>q;
+     q.push(s);
+     memset(p,-1,sizeof(p));
+     while(q.size()){
+        int a=q.front();
+        q.pop();
+        if(a==t)break;
+        for(int i=0;i<v[a].size();i++){
+            int to=v[a][i].f;
+            if(mat[a][to]>0&&dist[to]==INF){
+                dist[to]=dist[a]+1;
+                p[to]=a;
+                q.push(to);
+            }
+        }
+     }
+/*
+     for(int i=0;i<2*n+2;i++){
+        for(int j=0;j<v[i].size();j++)cout<<v[i][j].f<<' '<<v[i][j].s<<"    ";cout<<endl;
+     }cout<<endl;*/
+     f=0;
+     augment(t,INF);
+     mf+=f;
+     if(!f)break;
+  }
+  return mf;
+}
+int main()
+{
+   // freopen("test.in","r",stdin);
+   //freopen("output.txt","w",stdout);
+    scanf("%d%d",&n,&m);
+    int sumA=0,sumB=0;
+    for(int i=0;i<n;i++){
+        int a;
+        scanf("%d",&a);
+        sumA+=a;
+        AddEdge(0,i+1,a);
+        AddEdge(i+1,0,0);
+        AddEdge(i+1,i+1+n,INF);
+        AddEdge(i+1+n,i+1,0);
+    }
+    for(int i=0;i<n;i++){
+        int b;
+        scanf("%d",&b);
+        sumB+=b;
+        AddEdge(n+i+1,2*n+1,b);
+        AddEdge(2*n+1,n+i+1,0);
+    }
+    for(int i=0;i<m;i++){
+        int a,b;
+        scanf("%d%d",&a,&b);
+        AddEdge(a,b+n,INF);
+        AddEdge(b+n,a,0);
+        AddEdge(b,a+n,INF);
+        AddEdge(a+n,b,0);
+    }
+    int maxflow=edmondKarp(2*n+1);
+    if(maxflow==sumA&&sumA==sumB){
+        cout<<"YES\n";
+        for(int i=1;i<=n;i++){
+            for(int j=n+1;j<=2*n;j++){
+                if(mat[i][j]==0||mat[i][j]==INF)cout<<0<<' ';
+                else cout<<INF-mat[i][j]<<' ';
+            }cout<<endl;
+        }
+    }
+    else
+        cout<<"NO";
+    return 0;
+}
+

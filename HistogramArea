@@ -1,0 +1,21 @@
+ll HistogramArea(vector<ll>v){
+  stack<int>st;
+  ll sol=0;
+  int cur=0;
+  while(cur<v.size()){
+     if(st.size()&&v[st.top()]>v[cur]){
+        int lft=st.top();
+        st.pop();
+        sol=max(sol,v[lft]*(st.empty()?cur:(cur-st.top()-1)));
+     }
+     else{
+        st.push(cur++);
+     }
+  }
+  while(st.size()){
+      int a=st.top();
+      st.pop();
+      sol=max(sol,v[a]*(st.empty()?cur:(cur-st.top()-1)));
+  }
+  return sol;
+}	

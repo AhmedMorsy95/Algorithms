@@ -1,0 +1,101 @@
+/*
+Till the roof comes off, till the lights go out
+Till my legs give out, can’t shut my mouth.
+Till the smoke clears out. Am I high? Perhaps
+I'ma rip this shit till my bones collapse.
+*/
+#include <stdio.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <deque>
+#include <set>
+#include <stack>
+#include <string.h>
+#include <map>
+#include <vector>
+#include <queue>
+#include <math.h>
+#include <stack>
+#include <complex>
+
+
+#define ll long long
+#define X real()
+#define Y imag()
+#define angle(a)                (atan2((a).imag(), (a).real()))
+#define vec(a,b)                ((b)-(a))
+#define same(p1,p2)             (dp(vec(p1,p2),vec(p1,p2)) < EPS)
+#define dp(a,b)                 ( (conj(a)*(b)).real() )	// a*b cos(T), if zero -> prep
+#define cp(a,b)                 ( (conj(a)*(b)).imag() )	// a*b sin(T), if zero -> parllel
+#define length(a)               (hypot((a).imag(), (a).real()))
+#define normalize(a)            (a)/length(a)
+
+using namespace std;
+
+const int N=100005;
+typedef pair<int,int>ii;
+typedef pair<ii,int>event;
+typedef complex<double>point;
+
+const double EPS = 1e-9;
+int gcd(int a, int b) { return b == 0 ? a : gcd(b, a % b); }
+
+struct line{
+  double a,b,c;
+  line(point p1,point p2){
+     a=p2.Y-p1.Y;
+     b=p1.X-p2.X;
+     c=a*p1.X+b*p1.Y;
+  }
+};
+
+int ccw(point a, point b, point c) {
+  point v1(b - a), v2(c - a);
+  double t = cp(v1, v2);
+  if (t > +EPS)
+	return +1;
+  if (t < -EPS)
+	return -1;
+  if (v1.X * v2.X < -EPS || v1.Y * v2.Y < -EPS)/// opposite directions
+	return -1;
+  if (norm(v1) < norm(v2) - EPS)
+	return +1;
+  return 0;/// in range [a,b]
+}
+bool intersection(point a,point b,point c,point d){ 
+ line l1=line(a,b),l2=line(c,d);
+ double theta = l1.a*l2.b - l1.b*l2.a;
+ return !(fabs(theta)<=EPS);
+}
+bool isCollinear(point a, point b, point c) {
+	return fabs( cp(b-a, c-a) ) < EPS;
+}
+void get(point a,point b,point c,point d){
+ line l1=line(a,b),l2=line(c,d);
+ double theta = l1.a*l2.b - l1.b*l2.a;
+ double x=(l1.c*l2.b - l1.b*l2.c)/theta;
+ double y=(l1.a*l2.c - l1.c*l2.a)/theta;
+ printf("POINT %.2lf %.2lf\n",x,y);
+}
+int main()
+{
+    // freopen("test.in","r",stdin);
+    // freopen("test.out","w",stdout);
+    int t;
+    printf("INTERSECTING LINES OUTPUT\n");
+    scanf("%d",&t);
+    while(t--){
+        double z[4];
+        for(int i=0;i<4;i++)scanf("%lf",&z[i]);
+        point a=point(z[0],z[1]),b=point(z[2],z[3]);
+        for(int i=0;i<4;i++)scanf("%lf",&z[i]);
+        point c=point(z[0],z[1]),d=point(z[2],z[3]);
+        if(intersection(a,b,c,d))get(a,b,c,d);
+        else if(isCollinear(a,b,c)&&isCollinear(a,b,d))printf("LINE\n");
+        else printf("NONE\n");
+    }
+    printf("END OF OUTPUT\n");
+  return 0;
+}
+

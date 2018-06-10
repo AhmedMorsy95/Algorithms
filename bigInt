@@ -1,0 +1,85 @@
+import java.math.BigInteger;
+import java.util.Scanner;
+
+
+public class Main {
+    static BigInteger n;
+	static int m;
+	static int p;
+	static int matrix[][];
+	static int initial[][];
+	public static void main(String[] args) {
+     Scanner in = new Scanner(System.in);
+     n=in.nextBigInteger();
+     m=in.nextInt();
+     p=in.nextInt();
+     matrix = new int [1<<m][1<<m];
+     initial = new int [1<<m][1];
+     for(int i=0;i<(1<<m);i++){
+    	 initial[i][0]=1;
+    	 for(int j=0;j<(1<<m);j++){
+    		 int sum=0;
+    		 for(int k=0;k<m-1;k++){
+    	         boolean a=(i&(1<<k))>0;
+    	         boolean b=(j&(1<<k))>0;
+    	         boolean c=(i&(1<<(k+1)))>0;
+    	         boolean d=(j&(1<<(k+1)))>0;
+    	         if(a==b&&a==c&&a==d)
+    	        	 sum=1;
+    		 }
+    		 if(sum==0)
+    			 matrix[i][j]=1;
+    		 else
+    			 matrix[i][j]=0;//System.out.print(i+" "+j+"   ");
+    	 }
+     }
+     n=n.subtract(BigInteger.ONE);
+     int a[][]=multuplicate(edrb(n), initial);
+     long sum=0;
+     for(int i=0;i<1<<m;i++){//System.out.print(a[i][0]+" ");
+    	 sum+=a[i][0];
+         sum%=p;
+     }
+     System.out.print(sum);
+	}
+
+	public static int [][] multuplicate(int [][] a,int [][] b){
+		int ret[][] = new int [a.length][b[0].length];
+		for(int i=0;i<ret.length;i++)
+			for(int j=0;j<ret[0].length;j++)
+				ret[i][j]=0;
+		for(int i=0;i<a.length;i++){
+			for(int j=0;j<b[0].length;j++){
+				long sum=0;
+				for(int k=0;k<a[0].length;k++){
+					sum += a[i][k] *b[k][j];
+					sum%=p;
+				}
+				ret[i][j]=(int)(sum);
+			}
+		}
+	/*	for(int i=0;i<a.length;i++){
+			for(int j=0;j<a[i].length;j++)System.out.print(a[i][j]+" ");System.out.println();
+		}System.out.println();
+		for(int i=0;i<b.length;i++){
+			for(int j=0;j<b[i].length;j++)System.out.print(b[i][j]+" ");System.out.println();
+		}System.out.println();
+		for(int i=0;i<ret.length;i++){
+			for(int j=0;j<ret[i].length;j++)System.out.print(ret[i][j]+" ");System.out.println();
+		}*/
+		return ret;
+	}
+	public static int [][] edrb(BigInteger power){//System.out.print(power.intValue()+" ");
+		if(power.equals(BigInteger.ONE))return matrix.clone();
+		int ret[][] = edrb(power.divide(BigInteger.valueOf(2)));
+		ret = multuplicate(ret,ret);
+		//System.out.print(power.divideAndRemainder(BigInteger.valueOf(2))[1].intValue()+ " " + power.intValue()+"\n");
+		if(power.divideAndRemainder(BigInteger.valueOf(2))[1].equals(BigInteger.ONE)){
+			ret=multuplicate(ret, matrix);//System.out.print("YES");
+		    System.out.print( power.intValue() + " ");
+		}
+		return ret;
+	}
+
+}
+

@@ -1,0 +1,20 @@
+bool collide(double chefSpeed,double width,double carPos,double carlen,double carSpeed,double dir,double past){/// checks if the chef can pass without being hit
+/// chef moves along x axis and car moving along y
+///chef initially is a position 0
+   double s=carPos+past*carSpeed*dir;
+   double e=s-dir*carlen;
+   /// this is the start and end pos of the car after past time
+   double need=width/chefSpeed;
+   double s2=s+carSpeed*dir*need;
+   double e2=e+carSpeed*dir*need;
+   if(e<0&&s>0)return 1;
+   if(e>0&&s<0)return 1;/// the car now is covering index 0
+   if(e2<0&&s2>0)return 1;
+   if(e2>0&&s2<0)return 1;
+   if(s<0&&s2>0)return 1;
+   if(e<0&&e2>0)return 1;
+   if(s>0&&s2<0)return 1;
+   if(e<0&&e2>0)return 1;
+   if(fabs(e)<EPS||fabs(e2)<EPS||fabs(s)<EPS||fabs(s2)<EPS)return 1;
+   return 0;
+}

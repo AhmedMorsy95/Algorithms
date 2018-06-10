@@ -1,0 +1,16 @@
+/// getCost is increasing as k increases
+/// nklogn
+void solve(int i,int l,int r,int optL,int optR){
+  if(l>r)return;
+  int mid=(l+r)/2;
+  int best=optL;
+  dp[i][mid]=1e18;
+  for(int k=optL;k<=min(mid-1,optR);k++){
+      if(dp[i-1][k]+getCost(k+1,mid)<dp[i][mid]){
+        best=k;
+        dp[i][mid]=dp[i-1][k]+getCost(k+1,mid);
+      }
+  }
+  solve(i,l,mid-1,optL,best);
+  solve(i,mid+1,r,best,optR);
+}

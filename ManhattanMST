@@ -1,0 +1,153 @@
+/*
+Till the roof comes off, till the lights go out
+Till my legs give out, can’t shut my mouth.
+Till the smoke clears out. Am I high? Perhaps
+I'ma rip this shit till my bones collapse.
+*/
+#include <stdio.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <deque>
+#include <set>
+#include <stack>
+#include <string.h>
+#include <map>
+#include <vector>
+#include <queue>
+#include <math.h>
+#include <stack>
+#include <complex>
+
+
+#define f first
+#define s second
+#define ll long long
+#define sz(v)      ((int)((v).size()))
+#define X real()
+#define Y imag()
+#define angle(a)                (atan2((a).imag(), (a).real()))
+#define vec(a,b)                ((b)-(a))
+#define same(p1,p2)             (dp(vec(p1,p2),vec(p1,p2)) < EPS)
+#define dp(a,b)                 ( (conj(a)*(b)).real() )	// a*b cos(T), if zero -> prep
+#define cp(a,b)                 ( (conj(a)*(b)).imag() )	// a*b sin(T), if zero -> parllel
+#define length(a)               (hypot((a).imag(), (a).real()))
+#define normalize(a)            (a)/length(a)
+
+using namespace std;
+
+const int N=1001;
+typedef pair<int,int>ii;
+typedef pair<ii,int>edge;
+typedef complex<double>point;
+
+const double EPS = 1e-9;
+int gcd(int a, int b) { return b == 0 ? a : gcd(b, a % b); }
+
+double getDist(point a,point b){
+ return sqrt((a.X-b.X)*(a.X-b.X)+(a.Y-b.Y)*(a.Y-b.Y));
+}
+int dcmp(double x, double y) {
+  return fabs(x - y) <= EPS ? 0 : x < y ? -1 : 1;
+}
+struct node{
+ int y,x,id;
+ node(int a,int b,int c){
+   x=a,y=b,id=c;
+ }
+};
+bool cmp(node a,node b){
+ if(a.x!=b.x)
+    return a.x<b.x;
+ return a.y<b.y;
+}
+bool is[N][N];
+int n,bit[200015],pos[200015];
+vector<node>v;
+vector<ii>adj[N*101];
+int dis(node a,node b){
+ return abs(a.x-b.x) + abs(a.y-b.y);
+}
+void update(int idx,int val,int i){
+ while(idx>0){
+    if(val<bit[idx]){
+        bit[idx]=val;
+        pos[idx]=i;
+    }
+    idx-=idx&-idx;
+ }
+}
+int query(int idx){
+ int ret=-1,mn=1e9;
+ while(idx<N*100){
+    if(bit[idx]<mn){
+        mn=bit[idx];
+        ret=pos[idx];
+    }
+    idx+=idx&-idx;
+ }
+ return ret;
+}
+void AddEdges(){
+   sort(v.begin(),v.end(),cmp);
+   for(int i=0;i<N*100;i++)bit[i]=1e9,pos[i]=0;
+   for(int i=sz(v)-1;i>=0;i--){
+        int ret=query(v[i].y-v[i].x+2000);
+        if(ret!=-1)
+            adj[v[i].id].push_back(ii(v[ret].id,dis(v[i],v[ret]))),adj[v[ret].id].push_back(ii(v[i].id,dis(v[i],v[ret])));
+        update(v[i].y-v[i].x+2000,v[i].y+v[i].x,i);
+   }
+}
+void prepare(){
+ AddEdges();
+ for(int i=0;i<v.size();i++)v[i].x*=-1;
+ AddEdges();
+ for(int i=0;i<v.size();i++)v[i].y*=-1;
+ AddEdges();
+ for(int i=0;i<v.size();i++)v[i].x*=-1;
+ AddEdges();
+ for(int i=0;i<v.size();i++)v[i].y*=-1;
+ /////////////////////
+ for(int i=0;i<v.size();i++)swap(v[i].x,v[i].y);
+ /////////////////////
+ AddEdges();
+ for(int i=0;i<v.size();i++)v[i].x*=-1;
+ AddEdges();
+ for(int i=0;i<v.size();i++)v[i].y*=-1;
+ AddEdges();
+ for(int i=0;i<v.size();i++)v[i].x*=-1;
+ AddEdges();
+}
+bool done[N*101];
+int main()
+{
+//     freopen("test.in","r",stdin);
+    // freopen("test.out","w",stdout);
+  scanf("%d",&n);
+  for(int i=0;i<n;i++){
+        int x,y;
+        scanf("%d%d",&x,&y);
+        if(is[x][y])continue;
+        is[x][y]=1;
+        v.push_back(node(x,y,i));
+   }
+   prepare();
+   ll sum=0;
+   priority_queue<ii>q;
+   q.push(ii(0,0));
+   while(q.size()){
+      ii top=q.top();
+      q.pop();
+      if(done[top.s])continue;
+      sum-=top.f;
+      done[top.s]=1;
+      for(int i=0;i<adj[top.s].size();i++){
+            int to=adj[top.s][i].f;
+            if(done[to])continue;
+            q.push(ii(adj[top.s][i].s*-1,to));
+      }
+   }
+   cout<<sum;
+  return 0;
+}
+

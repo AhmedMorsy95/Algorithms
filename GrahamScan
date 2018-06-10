@@ -1,0 +1,121 @@
+/*
+Till the roof comes off, till the lights go out
+Till my legs give out, can’t shut my mouth.
+Till the smoke clears out. Am I high? Perhaps
+I'ma rip this shit till my bones collapse.
+*/
+#include <stdio.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <deque>
+#include <set>
+#include <stack>
+#include <string.h>
+#include <map>
+#include <vector>
+#include <queue>
+#include <math.h>
+#include <stack>
+#include <complex>
+
+
+#define ll long long
+#define sz(v)      ((int)((v).size()))
+#define X real()
+#define Y imag()
+#define angle(a)                (atan2((a).imag(), (a).real()))
+#define vec(a,b)                ((b)-(a))
+#define same(p1,p2)             (dp(vec(p1,p2),vec(p1,p2)) < EPS)
+#define dp(a,b)                 ( (conj(a)*(b)).real() )	// a*b cos(T), if zero -> prep
+#define cp(a,b)                 ( (conj(a)*(b)).imag() )	// a*b sin(T), if zero -> parllel
+#define length(a)               (hypot((a).imag(), (a).real()))
+#define normalize(a)            (a)/length(a)
+
+using namespace std;
+
+const int N=100005;
+typedef pair<int,int>ii;
+typedef pair<ii,int>event;
+typedef complex<double>point;
+
+const double EPS = 1e-9;
+int gcd(int a, int b) { return b == 0 ? a : gcd(b, a % b); }
+
+int dcmp(double a,double b){
+    return fabs(a-b) <= EPS ? 0 : a < b ? -1 : 1;
+}
+
+int ccw(point a, point b, point c) {
+  point v1(b - a), v2(c - a);
+  double t = cp(v1, v2);
+  if (t > +EPS)
+	return +1;
+  if (t < -EPS)
+	return -1;
+  if (v1.X * v2.X < -EPS || v1.Y * v2.Y < -EPS)/// opposite directions
+	return -1;
+  if (norm(v1) < norm(v2) - EPS)
+	return +1;
+  return 0;/// in range [a,b]
+}
+bool intersection(point p1,point p2,point p3,point p4){
+  bool x=(p1==p2),y=(p3==p4);
+  if(x&&y)return p1==p3;
+  if(x) return ccw(p3,p4,p1)==0;
+  if(y) return ccw(p1,p2,p3)==0;
+  return ccw(p1,p2,p3)*ccw(p1,p2,p4) <=0 && ccw(p3,p4,p1)*ccw(p3,p4,p2)<=0;
+}
+struct AngleCMP{
+    point center;
+    AngleCMP(point c) : center(c){}
+    bool operator () (const point &p0, const point &p1) const {
+        if(dcmp(cp(p0-center, p1-center), 0)==0){
+            if(fabs(p0.Y - p1.Y) < EPS)
+                return  p0.X < p1.X;
+            return p0.Y < p1.Y;
+        }
+        return  cp(p0-center, p1-center) < 0;
+    }
+};
+vector<point> ConvexHull(vector<point> points){
+ if(points.size()<=1)
+    return points;
+ for(int i=0;i<points.size();i++){/// get most bottom left
+        if(ii(points[i].Y,points[i].X)<ii(points[0].Y,points[0].X))
+            swap(points[i],points[0]);
+ }
+ sort(points.begin()+1,points.end(),AngleCMP(points[0]));
+ vector<point>ch;
+ for(int i=0;i<points.size();i++){
+    while(ch.size()>1 && cp(ch[sz(ch)-2]-ch[sz(ch)-1],points[i]-ch[sz(ch)-1])<0){
+        ch.pop_back();
+    }
+    ch.push_back(points[i]);
+ }
+	if(sz(ch) >= 3)	// Not a line
+		ch.push_back(ch[0]);
+ return ch;
+}
+int main()
+{
+     //freopen("test.in","r",stdin);
+    // freopen("test.out","w",stdout);
+    int t;
+    scanf("%d",&t);
+    while(t--){
+        int n;
+        scanf("%d",&n);
+        vector<point>p;
+        for(int i=0;i<n;i++){
+            int a,b;
+            scanf("%d%d",&a,&b);
+            p.push_back(point(a,b));
+        }
+        int x;
+        if(t)scanf("%d",&x);
+        ConvexHull(p);
+    }
+  return 0;
+}
+

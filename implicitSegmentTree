@@ -1,0 +1,46 @@
+struct node{
+   ll sum,lazy;
+   int l,r;
+   node *left,*right;
+   node(int a,int b){
+      sum=lazy=0;
+      l=a;
+      r=b;
+      left=right=NULL;
+   }
+};
+node *root;
+void eraso(node *a){
+   if(a==NULL)return;
+   if(a->left!=NULL)eraso(a->left);
+   if(a->right!=NULL)eraso(a->right);
+   delete a;
+}
+void update(node *cur,int s,int e,int from,int to,ll add,ll lazy){
+   cur->sum+=(e-s+1)*1LL*lazy;
+   cur->lazy+=lazy;
+   if(to<s||e<from)return;
+   if(from<=s&&e<=to){
+      cur->sum+=(e-s+1)*1LL*add;
+      cur->lazy+=add;
+      return;
+   }
+   if(cur->left==NULL)cur->left=new node(s,(s+e)/2);
+   if(cur->right==NULL)cur->right=new node((s+e)/2+1,e);
+   update(cur->left,s,(s+e)/2,from,to,add,cur->lazy);
+   update(cur->right,(s+e)/2+1,e,from,to,add,cur->lazy);
+   cur->lazy=0;
+   cur->sum=cur->left->sum+cur->right->sum;
+}
+ll query(node *cur,int s,int e,int from,int to,ll lazy){
+   cur->sum+=lazy*1LL*(e-s+1);
+   cur->lazy+=lazy;
+   if(to<s||e<from)return 0;
+   if(from<=s&&e<=to)return cur->sum;
+   if(cur->left==NULL)cur->left=new node(s,(s+e)/2);
+   if(cur->right==NULL)cur->right=new node((s+e)/2+1,e);
+   ll ret = query(cur->left,s,(s+e)/2,from,to,cur->lazy)+query(cur->right,(s+e)/2+1,e,from,to,cur->lazy);
+   cur->lazy=0;
+   return ret;
+}
+

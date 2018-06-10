@@ -1,0 +1,33 @@
+struct line{
+   ll a,b;
+   line(){;}
+   line(ll x,ll y){
+     a=x;
+     b=y;
+   }
+   ll get(ll x){
+      return a*x+b;
+   }
+};
+bool isbad(line l1,line l2,line l3){/// 3 consecutive lines while adding l3 i check if l2 is bad
+       /// b is bad if intersection of l1 and l3 is on the left of intersection of l1 and l2
+       return (l3.b-l1.b)*(l1.a-l2.a) < (l2.b-l1.b)*(l1.a-l3.a);
+}
+struct CHT{
+   vector<line>v;
+   int query;
+   CHT(){
+      query=0;
+   }
+   void insert(line l3){ /// slope should be increasing
+       while(v.size()>1&&isbad(v[v.size()-2],v.back(),l3))
+          v.pop_back();
+       v.pb(l3);
+   }
+   ll getMax(ll x){
+       if(v.empty())return INF;
+       while(query+1<v.size()&&v[query].get(x)<=v[query+1].get(x))
+         query++;
+       return v[query].get(x);
+   }
+};

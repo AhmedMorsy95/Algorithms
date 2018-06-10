@@ -1,0 +1,110 @@
+/*
+Till the roof comes off, till the lights go out
+Till my legs give out, canâ��t shut my mouth.
+Till the smoke clears out. Am I high? Perhaps
+I'ma rip this shit till my bones collapse.
+*/
+#include <stdio.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <deque>
+#include <set>
+#include <stack>
+#include <string.h>
+#include <map>
+#include <vector>
+#include <queue>
+#include <math.h>
+#include <stack>
+#include <complex>
+
+
+#define ll long long
+#define X real()
+#define Y imag()
+#define f first
+#define s second
+#define angle(a)                (atan2((a).imag(), (a).real()))
+#define vec(a,b)                ((b)-(a))
+#define same(p1,p2)             (dp(vec(p1,p2),vec(p1,p2)) < EPS)
+#define dp(a,b)                 ( (conj(a)*(b)).real() )	// a*b cos(T), if zero -> prep
+#define cp(a,b)                 ( (conj(a)*(b)).imag() )	// a*b sin(T), if zero -> parllel
+#define lngth(a)               (hypot((a).imag(), (a).real()))
+#define normalize(a)            (a)/length(a)
+
+using namespace std;
+
+const int N=100005;
+typedef pair<int,int>ii;
+typedef pair<ii,int>event;
+typedef complex<double>point;
+const double EPS = 1e-9;
+
+const double PI = acos(-1);
+int gcd(int a, int b) { return b == 0 ? a : gcd(b, a % b); }
+
+vector<vector<ll> >v,sol;
+ll n,m,d;
+vector<vector<ll> >matrixAzomol(vector<vector<ll> >a,vector<vector<ll> >b){
+  vector<vector<ll> >tempo;
+  for(int i=0;i<a.size();i++){
+        tempo.push_back(vector<ll>(b[0].size(),0));
+    for(int j=0;j<b[0].size();j++){
+         for(int k=0;k<a[i].size();k++){
+            tempo[i][j]+=a[i][k]*b[k][j];
+            tempo[i][j]%=m;//cout<<a[i][k]<<' '<<b[k][j]<<' ';
+         }
+    }
+  }
+  return tempo;
+}
+vector<vector<ll> >edrb(ll power){
+ if(power==1)return v;
+ vector<vector<ll> > ret = edrb(power/2);
+ ret=matrixAzomol(ret,ret);
+ if(power&1)
+    ret = matrixAzomol(ret,v);
+ return ret;
+}
+int main()
+{
+    //freopen("test.in","r",stdin);
+   //freopen("output.txt","w",stdout);
+    while(cin>>d>>n>>m){
+        v.clear();
+        sol.clear();
+        if(n==0)break;
+        for(int i=0;i<d;i++){
+            v.push_back(vector<ll>(d,0));
+            cin>>v[0][i];
+            if(i)
+                v[i][i-1]=1;
+        }
+        /*for(int i=0;i<d;i++){
+            for(int j=0;j<d;j++)cout<<v[i][j]<<' ';cout<<endl;
+        }*/
+        for(int i=0;i<d;i++){/// initial values
+            sol.push_back(vector<ll>(1,0));
+            cin>>sol[i][0];
+        }
+        reverse(sol.begin(),sol.end());
+        if(n<=d){
+            cout<<sol[n-1][0]<<endl;
+            continue;
+        }
+        n-=d;
+       /* vector<vector<ll> >y=edrb(n);
+        for(int i=0;i<y.size();i++){
+            for(int j=0;j<y[i].size();j++)cout<<y[i][j]<<' ';cout<<endl;
+        }
+        y=matrixAzomol(y,sol);
+        for(int i=0;i<y.size();i++){
+            for(int j=0;j<y[i].size();j++)cout<<y[i][j]<<' ';cout<<endl;
+        }*/
+        vector<vector<ll> >x=matrixAzomol(edrb(n),sol);
+        cout<<x[0][0]<<endl;
+    }
+    return 0;
+}
+

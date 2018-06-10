@@ -1,0 +1,46 @@
+struct matrix{
+   vector<vector<ll> >m;
+   matrix(){;}
+   matrix(int sz){
+      vector<ll>tmp(sz);
+      lp(i,0,sz)
+           m.pb(tmp);
+   }
+   void add(int i,int j,ll val){
+       m[i][j]=val;
+   }
+   vector<vector<ll> >multiply(vector<vector<ll> > a,vector<vector<ll> > b){
+        vector<vector<ll> >ret;
+        int n=a.size();
+        vector<ll>tmp(n,0);
+        lp(i,0,n)
+           ret.pb(tmp);
+        lp(i,0,n){
+           lp(j,0,n){
+              ll sum=0;
+              lp(k,0,n)
+                 sum=(sum+a[i][k]*b[k][j])%mod;
+              ret[i][j]=sum;
+           }
+        }
+       return ret;
+   }
+   vector<vector<ll> >identity(int n){
+     vector<vector<ll> >ret;
+     vector<ll>tmp(n,0);
+     lp(i,0,n)
+        ret.pb(tmp);
+     lp(i,0,n)
+        ret[i][i]=1;
+     return ret;
+   }
+   vector<vector<ll> >power(ll k){
+       if(!k)return identity(m.size());
+       if(k==1)return m;
+       vector<vector<ll> >ret=power(k/2);
+       ret=multiply(ret,ret);
+       if(k&1)
+        ret=multiply(ret,m);
+       return ret;
+   }
+};

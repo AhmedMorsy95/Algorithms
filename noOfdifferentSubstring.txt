@@ -1,0 +1,95 @@
+#include <iostream>
+#include <bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define ll long long
+#define F first
+#define S second
+#define PI acos(-1)
+#define EPS 1e-8
+#define BASE 53ll
+#define mod 1000000007ll
+#define ld long double
+#define MAX 900001
+#define NIL 0
+#define INF (1<<28)
+
+typedef pair<int,int>ii;
+typedef pair<ii,int>state;
+typedef pair<int,ii>edge;
+typedef pair<vector<int>,int>vii;
+const int N=100005;
+
+ll gcd(ll a, ll b) { return b == 0 ? a : gcd(b, a % b); }
+ll lcm(ll a, ll b) { return a * (b / gcd(a, b)); }
+ll fact(ll n){ll ret=1;for(int i=1;i<=n;i++)ret*=i;return ret;}
+bool is_vowel(char c){if(c=='a'||c=='e'||c=='i'||c=='o'||c=='u'||c=='y')return 1;return 0;}
+ld getDistance(ld x1,ld y1,ld x2,ld y2){return sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));}
+
+string str;
+int suf[N],group[N],lcp[N],n;
+int sortGroup[N];///temp array to build grouping after ith iteration
+struct comp{
+  int h;
+  comp(int h) : h(h){}
+  bool operator()(int i,int j){
+     if(group[i]!=group[j])
+        return group[i]<group[j];
+     if(i+h<n&&j+h<n)
+        return group[i+h]<group[j+h];
+     if(j+h<n)
+        return 1;
+     return 0;
+  }
+};
+void buildSuffixArray(){
+   int n;/// number of suffixes
+   n=str.length();
+   for(int i=0;i<n;i++){
+      suf[i]=i;
+      group[i]=str[i];
+   }
+   sort(suf,suf+n,comp(0));
+   for(int i=0;i<n;i++)sortGroup[i]=0;
+   for(int h=1;sortGroup[n-1]!=n-1;h*=2){
+      sort(suf,suf+n,comp(h));
+      for(int i=1;i<n;i++)
+        sortGroup[i]=sortGroup[i-1]+comp(h)(suf[i-1],suf[i]);
+      for(int i=0;i<n;i++)
+        group[suf[i]]=sortGroup[i];
+   }
+}
+void calculateLCP(){
+  int n=str.length();
+  vector<int>plcp(n),phi(n);/// permuted lcp
+  phi[suf[0]]=-1;
+  for(int i=1;i<n;i++)/// the suffix before me in suffix array
+    phi[suf[i]]=suf[i-1];
+  int l=0;
+  for(int i=0;i<n;i++){
+    if(phi[i]==-1){
+        plcp[i]=0;
+        continue;
+    }
+    while(i+l<n&&l+phi[i]<n&&str[i+l]==str[phi[i]+l])l++;
+    plcp[i]=l;
+    l=max(l-1,0);
+  }
+  for(int i=0;i<n;i++)
+        lcp[i]=plcp[suf[i]];/// lcp [i] = longest common prefix between suf at index i and i-1
+}
+int main()
+{
+   //freopen("test.in","r",stdin);
+    cin>>str;
+    n=str.length();
+    buildSuffixArray();
+    calculateLCP();
+    int sum=0;
+    for(int i=0;i<n;i++){
+        sum+=n-suf[i]-lcp[i];
+    }
+    cout<<sum;
+   return 0;
+}

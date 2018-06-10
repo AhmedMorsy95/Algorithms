@@ -1,0 +1,139 @@
+/*
+Till the roof comes off, till the lights go out
+Till my legs give out, can’t shut my mouth.
+Till the smoke clears out. Am I high? Perhaps
+I'ma rip this shit till my bones collapse.
+*/
+#include <stdio.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <deque>
+#include <set>
+#include <stack>
+#include <string.h>
+#include <map>
+#include <vector>
+#include <queue>
+#include <math.h>
+#include <stack>
+#include <complex>
+
+
+#define f first
+#define s second
+#define ll long long
+#define sz(v)      ((int)((v).size()))
+#define X real()
+#define Y imag()
+#define angle(a)                (atan2((a).imag(), (a).real()))
+#define vec(a,b)                ((b)-(a))
+#define same(p1,p2)             (dp(vec(p1,p2),vec(p1,p2)) < EPS)
+#define dp(a,b)                 ( (conj(a)*(b)).real() )	// a*b cos(T), if zero -> prep
+#define cp(a,b)                 ( (conj(a)*(b)).imag() )	// a*b sin(T), if zero -> parllel
+#define len(a)               (hypot((a).imag(), (a).real()))
+#define normalize(a)            (a)/length(a)
+
+using namespace std;
+
+const int N=301;
+typedef pair<int,int>ii;
+typedef pair<ii,int>node;
+typedef complex<double>point;
+
+const double EPS = 1e-9;
+int gcd(int a, int b) { return b == 0 ? a : gcd(b, a % b); }
+
+double getDist(point a,point b){
+ return sqrt((a.X-b.X)*(a.X-b.X)+(a.Y-b.Y)*(a.Y-b.Y));
+}
+int dcmp(double x, double y) {
+  return fabs(x - y) <= EPS ? 0 : x < y ? -1 : 1;
+}
+const int INF =1e9;
+
+vector<ii>v;
+int p[301],f,n,m,flow[301][301],cost[301][301],cur=28;
+void AddEdge(int a,int b,int c,int d){
+   v.push_back(ii(a,b));
+   v.push_back(ii(b,a));
+   flow[a][b]=c;
+   cost[a][b]=d;
+   cost[b][a]=-d;//cout<<a<<' '<<b<<' '<<c<<' '<<d<<endl;
+}
+int bellman(int n,int src,int dest){
+   vector<int>d(n+1,INF);
+   d[src]=0;
+   memset(p,-1,sizeof(p));
+   for(int i=0;i<n-1;i++){
+    for(int j=0;j<v.size();j++){
+        int from=v[j].f,to=v[j].s;
+        if(flow[from][to]>0&&d[from]+cost[from][to]<d[to]){
+            d[to]=d[from]+cost[from][to];
+            p[to]=from;
+        }
+    }
+   }//for(int i=0;i<=n;i++)cout<<d[i]<<' ';
+   return d[dest];
+}
+ii MinCostMaxFlow(int src,int dest){
+  int sum=0,cost=0;
+  while(1){
+    int mn=1e9,cur=dest,path=bellman(dest,src,dest);
+    if(p[dest]==-1)break;
+    while(p[cur]!=-1){
+        mn=min(mn,flow[p[cur]][cur]);
+        cur=p[cur];
+    }
+    sum+=mn;
+    cost+=mn*path;
+    cur=dest;
+    while(p[cur]!=-1){
+        flow[p[cur]][cur]-=mn;
+        flow[cur][p[cur]]+=mn;
+        cur=p[cur];
+    }
+  }
+  return ii(sum,cost);
+}
+int main()
+{
+    // freopen("test.in","r",stdin);
+    // freopen("test.out","w",stdout);
+     string t;
+     cin>>t;
+     int src=0;
+     cur=28;
+     vector<int>alpha(27,0);
+     for(int i=0;i<t.length();i++){
+          alpha[t[i]-'a']++;
+     }
+     for(int i=0;i<26;i++){
+        AddEdge(0,i+1,alpha[i],0);
+     }
+     int n;
+     scanf("%d",&n);
+     for(int i=1;i<n+1;i++){
+        string s;
+        int a;
+        cin>>s>>a;
+        fill(alpha.begin(),alpha.end(),0);
+        for(int j=0;j<s.length();j++)
+            alpha[s[j]-'a']++;
+        AddEdge(cur+i,cur+n+i,a,i);/// split each string into 2 nodes
+        AddEdge(cur+n+i,cur+n*2+1,t.length(),0);
+        for(int j=0;j<26;j++){
+            if(!alpha[j])continue;
+            AddEdge(j+1,cur+i,alpha[j],0);/// flow is the number of characters i have of j in s And cost is a
+        }
+     }
+     cur+=n*2+1;
+     ii a = MinCostMaxFlow(0,cur);
+     if(a.f==t.length())cout<<a.s;
+     else cout<<-1;
+  return 0;
+}
+/*
+100% reason to Remember THE NAME
+*/
+

@@ -1,0 +1,105 @@
+/*
+Till the roof comes off, till the lights go out
+Till my legs give out, can’t shut my mouth.
+Till the smoke clears out. Am I high? Perhaps
+I'ma rip this shit till my bones collapse.
+*/
+#include <stdio.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <deque>
+#include <set>
+#include <stack>
+#include <string.h>
+#include <map>
+#include <vector>
+#include <queue>
+#include <math.h>
+#include <stack>
+#include <complex>
+
+
+#define ll long long
+#define sz(v)      ((int)((v).size()))
+#define X real()
+#define Y imag()
+//#define angle(a)                (atan2((a).imag(), (a).real()))
+#define vec(a,b)                ((b)-(a))
+#define same(p1,p2)             (dp(vec(p1,p2),vec(p1,p2)) < EPS)
+#define dp(a,b)                 ( (conj(a)*(b)).real() )	// a*b cos(T), if zero -> prep
+#define cp(a,b)                 ( (conj(a)*(b)).imag() )	// a*b sin(T), if zero -> parllel
+#define length(a)               (hypot((a).imag(), (a).real()))
+#define normalize(a)            (a)/length(a)
+#define pb push_back
+#define f first
+#define s second
+
+using namespace std;
+
+const int N=100005;
+typedef pair<ll,ll>ii;
+typedef pair<double,int>angle;
+typedef pair<ii,int>event;
+typedef complex<double>point;
+
+const double EPS = 1e-9;
+int gcd(int a, int b) { return b == 0 ? a : gcd(b, a % b); }
+
+double getDist(point a,point b){
+ return sqrt((a.X-b.X)*(a.X-b.X)+(a.Y-b.Y)*(a.Y-b.Y));
+}
+int dcmp(double x, double y) {
+  return fabs(x - y) <= EPS ? 0 : x < y ? -1 : 1;
+}
+double distanc(point a,point b){
+   return abs(a-b);
+}
+void solve(vector<point>p,double r){
+   int n=p.size(),mx=1;
+   for(int i=0;i<n;i++){
+    vector<angle>v;
+    for(int j=0;j<n;j++){
+        if(i==j)continue;
+        if(dcmp(distanc(p[i],p[j]),2.0*r)==1)continue;
+        double B=acos(distanc(p[i],p[j])/(2.0*r));
+        double A=arg(p[j]-p[i]);
+        double alpha=A-B;
+        double beta=A+B;
+        if(dcmp(beta,alpha)==0){
+            beta+=EPS;
+        }
+        v.pb(angle(alpha,1));
+        v.pb(angle(beta,0));
+    }
+    sort(v.begin(),v.end());
+    int cnt=0;
+    for(int j=0;j<v.size();j++){
+        if(v[j].s)cnt++;
+        else cnt--;
+        mx=max(mx,cnt+1);
+    }
+   }
+   cout<<mx<<endl;
+}
+int main()
+{
+    // freopen("test.in","r",stdin);
+    // freopen("test.out","w",stdout);
+   int t;
+   cin>>t;
+   while(t--){
+    int n;
+    double r;
+    cin>>n>>r;
+    vector<point>p;
+    for(int i=0;i<n;i++){
+        point a;
+        cin>>a.real()>>a.imag();
+        p.pb(a);
+    }
+    solve(p,r);
+   }
+  return 0;
+}
+

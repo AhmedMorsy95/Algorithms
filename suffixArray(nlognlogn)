@@ -1,0 +1,36 @@
+string str;
+int suf[N],group[N];
+int sortGroup[N];///temp array to build grouping after ith iteration
+struct comp{
+  int h;
+  comp(int h) : h(h){}
+  bool operator()(int i,int j){
+     if(group[i]!=group[j])
+        return group[i]<group[j];
+     return group[i+h]<group[j+h];
+  }
+};
+void buildSuffixArray(){
+ int n;/// number of suffixes
+   n=str.length();
+   for(int i=0;i<n;i++){
+      suf[i]=i;
+      group[i]=str[i];
+   }
+   sort(suf,suf+n,comp(0));
+   sortGroup[0]=sortGroup[n-1]=0;
+   for(int h=1;sortGroup[n-1]!=n-1;h*=2){
+      sort(suf,suf+n,comp(h));
+      for(int i=1;i<n;i++)
+        sortGroup[i]=sortGroup[i-1]+comp(h)(suf[i-1],suf[i]);
+      for(int i=0;i<n;i++)
+        group[suf[i]]=sortGroup[i];
+   }
+}
+int main()
+{
+   //freopen("test.in","r",stdin);
+    cin>>str;
+    buildSuffixArray();
+   return 0;
+}

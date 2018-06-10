@@ -1,0 +1,95 @@
+/*
+Till the roof comes off, till the lights go out
+Till my legs give out, can’t shut my mouth.
+Till the smoke clears out. Am I high? Perhaps
+I'ma rip this shit till my bones collapse.
+*/
+#include <stdio.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <deque>
+#include <set>
+#include <stack>
+#include <string.h>
+#include <map>
+#include <vector>
+#include <queue>
+#include <math.h>
+#include <stack>
+#include <complex>
+
+
+#define ll long long
+#define sz(v)      ((int)((v).size()))
+#define X real()
+#define Y imag()
+#define angle(a)                (atan2((a).imag(), (a).real()))
+#define vec(a,b)                ((b)-(a))
+#define same(p1,p2)             (dp(vec(p1,p2),vec(p1,p2)) < EPS)
+#define dp(a,b)                 ( (conj(a)*(b)).real() )	// a*b cos(T), if zero -> prep
+#define cp(a,b)                 ( (conj(a)*(b)).imag() )	// a*b sin(T), if zero -> parllel
+#define length(a)               (hypot((a).imag(), (a).real()))
+#define normalize(a)            (a)/length(a)
+
+using namespace std;
+
+const int N=100005;
+typedef pair<int,int>ii;
+typedef pair<ii,int>event;
+typedef complex<double>point;
+
+const double EPS = 1e-9;
+int gcd(int a, int b) { return b == 0 ? a : gcd(b, a % b); }
+
+double getDist(point a,point b){
+ return sqrt((a.X-b.X)*(a.X-b.X)+(a.Y-b.Y)*(a.Y-b.Y));
+}
+int dcmp(double x, double y) {
+  return fabs(x - y) <= EPS ? 0 : x < y ? -1 : 1;
+}
+
+struct cmpY {
+  bool operator()(const point &a, const point &b) {
+    if (dcmp(a.Y, b.Y) != 0)
+      return dcmp(a.Y, b.Y) < 0;
+    return dcmp(a.X, b.X) < 0;
+  }
+};
+vector<point>p;
+double ClosestPair(){
+  double mn=1e18;
+  int cur=0;
+  multiset<point,cmpY>active;
+  for(int i=0;i<p.size();i++){
+    while(cur<i && p[i].X-p[cur].X>mn)
+        active.erase(active.find(p[cur++]));
+
+    multiset<point,cmpY>::iterator low = active.lower_bound(point(-1e16,p[i].Y-mn));
+    multiset<point,cmpY>::iterator high = active.upper_bound(point(-1e16,p[i].Y+mn));
+    while(low!=high){
+         mn = min(mn,getDist(*low,p[i]));
+         low++;
+    }
+    active.insert(p[i]);
+  }
+  return mn;
+}
+int main()
+{
+     //freopen("test.in","r",stdin);
+    // freopen("test.out","w",stdout);
+   int sum=0,n;
+   scanf("%d",&n);
+   for(int i=0;i<n;i++){
+      int a;
+      scanf("%d",&a);
+      if(i)sum+=a;
+      p.push_back(point(i,sum));
+   }
+   double a=ClosestPair();
+   a*=a;
+   printf("%.0lf",a);
+  return 0;
+}
+

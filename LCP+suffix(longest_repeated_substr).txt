@@ -1,0 +1,80 @@
+string str;
+int suf[N],group[N],lcp[N],n;
+int sortGroup[N];///temp array to build grouping after ith iteration
+struct comp{
+  int h;
+  comp(int h) : h(h){}
+  bool operator()(int i,int j){
+     if(group[i]!=group[j])
+        return group[i]<group[j];
+     if(i+h<n&&j+h<n)
+        return group[i+h]<group[j+h];
+     if(j+h<n)
+        return 1;
+     return 0;
+  }
+};
+void buildSuffixArray(){
+   int n;/// number of suffixes
+   n=str.length();
+   for(int i=0;i<n;i++){
+      suf[i]=i;
+      group[i]=str[i];
+   }
+   sort(suf,suf+n,comp(0));
+   for(int i=0;i<n;i++)sortGroup[i]=0;
+   for(int h=1;sortGroup[n-1]!=n-1;h*=2){
+      sort(suf,suf+n,comp(h));
+      for(int i=1;i<n;i++)
+        sortGroup[i]=sortGroup[i-1]+comp(h)(suf[i-1],suf[i]);
+      for(int i=0;i<n;i++)
+        group[suf[i]]=sortGroup[i];
+   }
+}
+void calculateLCP(){
+  int n=str.length();
+  vector<int>plcp(n),phi(n);/// permuted lcp
+  phi[suf[0]]=-1;
+  for(int i=1;i<n;i++)/// the suffix before me in suffix array
+    phi[suf[i]]=suf[i-1];
+  int l=0;
+  for(int i=0;i<n;i++){
+    if(phi[i]==-1){
+        plcp[i]=0;
+        continue;
+    }
+    while(i+l<n&&l+phi[i]<n&&str[i+l]==str[phi[i]+l])l++;
+    plcp[i]=l;
+    l=max(l-1,0);
+  }
+  for(int i=0;i<n;i++)
+        lcp[i]=plcp[suf[i]];/// lcp [i] = longest common prefix between suf at index i and i-1
+}
+int main()
+{
+   //freopen("test.in","r",stdin);
+   int t;
+   scanf("%d",&t);
+   memset(suf,-1,sizeof(suf));
+   while(t--){
+    cin>>str;
+    n=str.length();
+    buildSuffixArray();
+    calculateLCP();
+    int mx=0,sum=0,idx=-1;
+    for(int i=0;i<str.length();i++){
+        if(lcp[i]>mx){
+            idx=suf[i];
+            mx=lcp[i];
+            sum=1;
+        }
+        else if(lcp[i]==mx&&lcp[i-1]==lcp[i])sum++;
+    }
+    if(idx==-1)printf("No repetitions found!\n");
+    else{
+        for(int i=0;i<mx;i++)printf("%c",str[idx+i]);
+        printf(" %d\n",sum+1);
+    }
+   }
+   return 0;
+}

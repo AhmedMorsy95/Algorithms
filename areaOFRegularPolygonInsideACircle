@@ -1,0 +1,5 @@
+    double r,n;
+    while(cin>>r>>n){
+        double area = 0.5 * n * r * r * sin(double(2.0*PI/double(n)));
+        printf("%.3lf\n",area);
+    }
